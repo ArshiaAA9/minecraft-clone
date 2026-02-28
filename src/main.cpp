@@ -19,10 +19,10 @@ int main() {
     // Ground plane vertices
     std::vector<float> groundVertices = {
         // positions
-        -10.0f, -1.0f, -10.0f, // v1
-        10.0f,  -1.0f, -10.0f, // v1
-        10.0f,  -1.0f, 10.0f,  // v1
-        -10.0f, -1.0f, 10.0f,  // v1
+        -10.0f, -1.0f, -10.0f, 0.15f, 0.55f, 0.15f, //
+        10.0f,  -1.0f, -10.0f, 0.15f, 0.55f, 0.15f, //
+        10.0f,  -1.0f, 10.0f,  0.15f, 0.55f, 0.15f, //
+        -10.0f, -1.0f, 10.0f,  0.15f, 0.55f, 0.15f  //
     };
 
     std::vector<unsigned int> groundIndices = {
@@ -61,12 +61,21 @@ int main() {
     Sfml sf{WIN_WIDTH, WIN_HEIGHT};
     Renderer renderer{};
     renderer.createShader("base", "../src/vertShader.glsl", "../src/fragShader.glsl");
+    std::vector<Mesh> meshes;
 
-    Mesh mesh{};
-    mesh.setVertices(vertices);
-    mesh.setIndexData(indices);
-    mesh.setAttribute(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), nullptr);
-    mesh.setAttribute(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), nullptr);
+    Mesh cube{};
+    cube.setVertices(vertices);
+    cube.setIndexData(indices);
+    cube.setAttribute(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    cube.setAttribute(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    meshes.push_back(std::move(cube));
+
+    Mesh ground{};
+    ground.setVertices(groundVertices);
+    ground.setIndexData(groundIndices);
+    ground.setAttribute(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    ground.setAttribute(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    meshes.push_back(std::move(ground));
 
     const Shader& shader = renderer.getShader("base");
     shader.useProgram();
@@ -79,7 +88,6 @@ int main() {
 
     glEnable(GL_DEPTH_TEST);
     while (sf.window.isOpen()) {
-
         float currentTime = sf.clock.getElapsedTime().asSeconds();
         deltaTime = currentTime - lastTime;
         lastTime = currentTime;
@@ -98,7 +106,9 @@ int main() {
         glm::mat4 view = camera.getViewMatrix();
         shader.setMat4("view", view);
 
-        mesh.draw();
+        for (const auto& mesh : meshes) {
+            mesh.draw();
+        }
 
         sf.window.display();
     }

@@ -1,5 +1,5 @@
 #pragma once
-#include <glm/glm.hpp>
+
 #include <glm/gtc/matrix_transform.hpp>
 
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific
@@ -54,6 +54,8 @@ public:
     void processMouseScroll(float yoffset);
 
     void processKeyboard(Camera_Movement direction, float deltaTime);
+
+    const glm::vec3& getPosition() const { return m_position; }
 
 private:
     void updateCameraVectors();
