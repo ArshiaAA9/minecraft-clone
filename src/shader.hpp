@@ -75,10 +75,17 @@ public:
         }
         SunnyLog::log(SunnyLog::INFO, "Linked Successfully");
 
+        // get uniform location for less calls
+        m_modelLoc = glGetUniformLocation(m_program, "model");
+        m_viewLoc = glGetUniformLocation(m_program, "view");
+        m_projLoc = glGetUniformLocation(m_program, "projection");
+
         // delete the shaders as they're linked into program now and no longer necessary
         glDeleteShader(vertex);
         glDeleteShader(fragment);
     };
+
+    ~Shader() { glDeleteProgram(m_program); }
 
     inline void useProgram() const { glUseProgram(m_program); }
 
@@ -98,7 +105,7 @@ public:
         glUniform1f(glGetUniformLocation(m_program, name.c_str()), value);
     }
 
-    inline void setMat4(const std::string& name, glm::mat4& mat) const {
+    inline void setMat4(const std::string& name, const glm::mat4& mat) const {
         glUniformMatrix4fv(glGetUniformLocation(m_program, name.c_str()), 1, GL_FALSE, &mat[0][0]);
     }
 
@@ -118,6 +125,15 @@ public:
         glUniform3f(loc, value1, value2, value3);
     }
 
+    inline void setModel(const glm::mat4& mat) const { glUniformMatrix4fv(m_modelLoc, 1, GL_FALSE, &mat[0][0]); }
+
+    inline void setView(const glm::mat4& mat) const { glUniformMatrix4fv(m_viewLoc, 1, GL_FALSE, &mat[0][0]); }
+
+    inline void setProjection(const glm::mat4& mat) const { glUniformMatrix4fv(m_projLoc, 1, GL_FALSE, &mat[0][0]); }
+
 private:
     unsigned int m_program;
+    GLint m_modelLoc = -1;
+    GLint m_viewLoc = -1;
+    GLint m_projLoc = -1;
 };

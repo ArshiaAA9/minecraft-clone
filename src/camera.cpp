@@ -1,11 +1,22 @@
 #include "camera.hpp"
 
 void Camera::processKeyboard(Camera_Movement direction, float deltaTime) {
-    float velocity = m_movementSpeed * deltaTime;
-    if (direction == FORWARD) m_position += m_front * velocity;
-    if (direction == BACKWARD) m_position -= m_front * velocity;
-    if (direction == LEFT) m_position -= m_right * velocity;
-    if (direction == RIGHT) m_position += m_right * velocity;
+    float speed = m_movementSpeed * deltaTime;
+
+    // Project forward onto the horizontal plane (XZ)
+    glm::vec3 forward = glm::vec3(m_front.x, 0.0f, m_front.z);
+    forward = glm::normalize(forward);
+
+    // Project right onto the horizontal plane (or recompute from world up and forward)
+    glm::vec3 right = glm::vec3(m_right.x, 0.0f, m_right.z);
+    right = glm::normalize(right);
+
+    if (direction == FORWARD) m_position += forward * speed;
+    if (direction == BACKWARD) m_position -= forward * speed;
+    if (direction == RIGHT) m_position += right * speed;
+    if (direction == LEFT) m_position -= right * speed;
+    if (direction == UP) m_position.y += speed;
+    if (direction == DOWN) m_position.y -= speed;
 }
 
 void Camera::processMouseMovement(float xoffset, float yoffset, bool constrainPitch) {

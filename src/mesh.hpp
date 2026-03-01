@@ -55,14 +55,14 @@ struct Mesh {
 
     // Upload vertex data (interleaved or separate)
     template <typename T>
-    inline void setVertices(const std::vector<T>& data, int bindingIndex = 0) {
+    inline void setVertices(const std::vector<T>& data, GLsizei vertexCount, int bindingIndex = 0) {
         bind();
         GLuint vbo;
         glGenBuffers(1, &vbo);
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(T), data.data(), GL_STATIC_DRAW);
         m_vbos.push_back(vbo);
-        m_vertexCount = static_cast<GLsizei>(data.size());
+        m_vertexCount = vertexCount;
     }
 
     inline void setIndexData(const std::vector<unsigned int>& indices) {
@@ -80,6 +80,13 @@ struct Mesh {
         bind();
         glEnableVertexAttribArray(index);
         glVertexAttribPointer(index, size, type, normalized, stride, pointer);
+    }
+
+    inline void drawInstanced(GLsizei instanceCount) {
+        bind();
+        if (m_ebo) glDrawElementsInstanced(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, 0, instanceCount);
+        else
+            glDrawArraysInstanced(GL_TRIANGLES, 0, m_vertexCount, instanceCount);
     }
 
     // Draw the mesh (using indices if available)
