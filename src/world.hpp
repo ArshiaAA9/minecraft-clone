@@ -11,8 +11,6 @@
 #include "glm/fwd.hpp"
 #include "shader.hpp"
 
-#define GRAVITY_MULTIPLIER 1
-
 // provides the hash for glm::ivec2
 namespace std {
 template <>
@@ -44,7 +42,7 @@ public:
     inline void addEntity(std::unique_ptr<Entity> entity) { m_entities.push_back(std::move(entity)); }
 
 private:
-    inline static constexpr float GRAVITY = -9.8 * GRAVITY_MULTIPLIER;
+    inline static constexpr float GRAVITY = -9.8;
     std::unordered_map<glm::ivec2, std::unique_ptr<Chunk>> m_chunks;
     std::vector<std::unique_ptr<Entity>> m_entities;
 };

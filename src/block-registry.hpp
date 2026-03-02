@@ -3,8 +3,8 @@
 #include <glm/glm.hpp>
 
 struct BlockType {
-    bool isSolid = true;
-    bool isTransparent = false;
+    bool isSolid;
+    bool isTransparent;
     bool canFall;
     glm::vec2 texCoordTopLeft[6]; // order: right, left, top, bottom, front, back
 };
