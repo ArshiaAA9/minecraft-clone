@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 
 #include <SFML/Graphics.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -42,7 +43,7 @@ public:
         window.setMouseCursorGrabbed(true);
         window.setMouseCursorVisible(false);
 
-        // glad must be loaded before opengl
+        // glad must be loaded before opengl and imgui
         if (!gladLoadGL()) {
             SunnyLog::log("Error during gladLoadGl");
         }

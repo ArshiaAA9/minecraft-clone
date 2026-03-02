@@ -1,7 +1,11 @@
 #pragma once
 #include <glm/glm.hpp>
 
-#include "glm/fwd.hpp"
+struct EntityState {
+    bool jumping;
+    bool falling;
+    bool walking;
+};
 
 class Entity {
 public:
@@ -24,11 +28,15 @@ public:
     inline void move(glm::vec3 amount) { m_position += amount; }
 
     // TODO: implement checks for this function
-    // right now i dont know what the constraints should be i leave it empty
+    // if entity is inside object etc...
     inline bool isValidPosition(glm::vec3) const { return true; }
+
+    // no setter for state because Entity should manage it own state
+    const EntityState& getState() const { return m_state; }
 
 protected:
     glm::vec3 m_position;
-    glm::vec3 m_velocity;
     float m_movementSpeed;
+    glm::vec3 m_velocity;
+    EntityState m_state;
 };

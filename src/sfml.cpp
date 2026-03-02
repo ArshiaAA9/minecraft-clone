@@ -1,8 +1,9 @@
 #include "sfml.hpp"
 
+#include <SFML/System/Time.hpp>
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Keyboard.hpp>
-#include <iostream>
+#include <SFML/Window/Mouse.hpp>
 
 #include "camera.hpp"
 
