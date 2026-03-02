@@ -13,8 +13,11 @@ void Sfml::handleEvents(float deltaTime, Camera& camera) {
             window.close();
         } else if (const auto* resized = event->getIf<sf::Event::Resized>()) {
             glViewport(0, 0, resized->size.x, resized->size.y);
+        } else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
+            if (keyPressed->scancode == sf::Keyboard::Scancode::G) camera.switchGodmode();
         }
     }
+
     handleKeyboard(deltaTime, camera);
     handleMouse(deltaTime, camera);
 }
@@ -31,6 +34,7 @@ void Sfml::handleKeyboard(float deltaTime, Camera& camera) {
 }
 
 void Sfml::handleMouse(float deltaTime, Camera& camera) {
+
     sf::Vector2i currentMousePos = sf::Mouse::getPosition(window);
     // std::cout << "MousePos: " << currentMousePos.x << ',' << currentMousePos.y << '\n';
     // Calculate delta from center of window

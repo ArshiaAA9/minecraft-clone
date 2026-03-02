@@ -5,6 +5,7 @@ struct EntityState {
     bool jumping;
     bool falling;
     bool walking;
+    bool godmode;
 };
 
 class Entity {
@@ -33,6 +34,8 @@ public:
 
     // no setter for state because Entity should manage it own state
     const EntityState& getState() const { return m_state; }
+
+    void switchGodmode();
 
 protected:
     glm::vec3 m_position;

@@ -24,7 +24,9 @@ const BlockType Chunk::getBlockTypeAtPosition(const glm::vec3& pos) const {
  * check if block is on the edge of the chunk
  * if yes then use those if not then only
  * check using the adjactent blocks
- * in the chunk */
+ * in the chunk
+ * NOTE: IMPLEMENTED WITH AI GOODLUCK DEBUGGING
+ * */
 void Chunk::generateMesh(const std::array<Chunk*, 4>& neighbours) {
     // preallocate the memory using reserve()
     // i cant bother to check the math for the maximum

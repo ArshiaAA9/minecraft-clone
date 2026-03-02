@@ -16,8 +16,9 @@ namespace std {
 template <>
 struct hash<glm::ivec2> {
     size_t operator()(const glm::ivec2& v) const noexcept {
-        // Combine hashes of the two components (a simple but effective method)
-        return hash<int>()(v.x) ^ (hash<int>()(v.y) << 1);
+        size_t h1 = hash<int>()(v.x);
+        size_t h2 = hash<int>()(v.y);
+        return h1 ^ (h2 * 2654435761u + 0x9e3779b9 + (h1 << 6) + (h1 >> 2));
     }
 };
 } // namespace std
@@ -25,6 +26,8 @@ struct hash<glm::ivec2> {
 class World {
 public:
     World() {}
+
+    ~World() {}
 
     // update entity position, physics ,etc.
     void update(float deltaTime);

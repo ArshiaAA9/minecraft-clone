@@ -24,6 +24,8 @@ public:
     inline static constexpr int HEIGHT = 32;
     inline static constexpr int DEPTH = 16;
     inline static constexpr int VOLUME = WIDTH * HEIGHT * DEPTH;
+    inline static constexpr int CHUNK_ROWS = 16;
+    inline static constexpr int CHUNK_COLS = 16;
 
     Chunk(const glm::ivec2& coord)
         : m_coord(coord) {}
@@ -51,5 +53,5 @@ private:
     // each uint8_t corresponds to a blocktype
     std::array<uint8_t, VOLUME> m_blocks;
     Mesh m_mesh;
-    bool m_isDirty;
+    bool m_isDirty = true;
 };

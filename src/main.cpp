@@ -13,37 +13,10 @@
 
 #define WIN_WIDTH 1260
 #define WIN_HEIGHT 720
-#define FOV 60.f
+#define FOV 80.f
 
 int main() {
     BlockRegistry::init();
-    std::vector<float> cubeVertices{
-        // Position:         // Colors:
-        -0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, // 0: bottom-left-back - red
-        0.5f,  -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, // 1: bottom-right-back - green
-        0.5f,  0.5f,  -0.5f, 0.0f, 0.0f, 1.0f, // 2: top-right-back - blue
-        -0.5f, 0.5f,  -0.5f, 1.0f, 1.0f, 0.0f, // 3: top-left-back - yellow
-        -0.5f, -0.5f, 0.5f,  1.0f, 0.0f, 1.0f, // 4: bottom-left-front - magenta
-        0.5f,  -0.5f, 0.5f,  0.0f, 1.0f, 1.0f, // 5: bottom-right-front - cyan
-        0.5f,  0.5f,  0.5f,  0.5f, 0.5f, 0.5f, // 6: top-right-front - gray
-        -0.5f, 0.5f,  0.5f,  0.0f, 0.0f, 0.0f  // 7: top-left-front - black
-    };
-    std::vector<unsigned int> cubeIndices = {
-
-        // Back face
-        0, 1, 2, 2, 3, 0,
-        // Front face
-        4, 5, 6, 6, 7, 4,
-        // Top face
-        3, 2, 6, 6, 7, 3,
-        // Bottom face
-        0, 1, 5, 5, 4, 0,
-        // Right face
-        1, 2, 6, 6, 5, 1,
-        // Left face
-        0, 3, 7, 7, 4, 0
-
-    };
 
     Sfml sf{WIN_WIDTH, WIN_HEIGHT};
 

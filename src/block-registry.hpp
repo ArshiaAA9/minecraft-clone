@@ -22,6 +22,9 @@ public:
 
     // Initialize all block types – call once at program start
     static inline void init() {
+        // the coords map to a texture inside the texture atlas where multiple
+        // textures reside
+
         // Air (ID 0)
         s_blocks[0].isSolid = false;
         s_blocks[0].isTransparent = true;
@@ -40,14 +43,14 @@ public:
         s_blocks[2].isSolid = true;
         s_blocks[2].isTransparent = false;
         for (int i = 0; i < 6; ++i) {
-            s_blocks[2].texCoordTopLeft[i] = glm::vec2(0.5f, 0.0f); // all faces use dirt texture
+            s_blocks[2].texCoordTopLeft[i] = glm::vec2(0.5f, 0.0f); // all faces use same texture
         }
 
         // Stone (ID 3)
         s_blocks[3].isSolid = true;
         s_blocks[3].isTransparent = false;
         for (int i = 0; i < 6; ++i) {
-            s_blocks[3].texCoordTopLeft[i] = glm::vec2(0.5f, 0.0f); // all faces use dirt texture
+            s_blocks[3].texCoordTopLeft[i] = glm::vec2(0.5f, 0.0f); // all faces use same texture
         }
     }
 
