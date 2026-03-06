@@ -63,6 +63,20 @@ public:
 
     inline const HitTarget& getCrosshairTarget() const { return m_crosshairTarget; }
 
+    inline glm::vec3 getFront() const { return m_front; }
+
+    inline glm::vec3 getUp() const { return m_up; }
+
+    inline float getYaw() const { return m_yaw; }
+
+    inline float getPitch() const { return m_pitch; }
+
+    inline float getMovementSpeed() const { return m_movementSpeed; }
+
+    inline float getMouseSensitivity() const { return m_mouseSensitivity; }
+
+    inline float getZoom() const { return m_zoom; }
+
 private:
     void updateCameraVectors();
 

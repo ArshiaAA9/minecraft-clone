@@ -12,7 +12,10 @@ class Entity {
 public:
     Entity(glm::vec3 position, float movementSpeed)
         : m_position(position)
-        , m_movementSpeed(movementSpeed) {}
+        , m_velocity(0.0f)
+        , m_movementSpeed(movementSpeed)
+        , m_state{} //(zero‑initializes all bools)
+    {}
 
     virtual ~Entity() = default;
 
@@ -39,7 +42,7 @@ public:
 
 protected:
     glm::vec3 m_position;
-    float m_movementSpeed;
     glm::vec3 m_velocity;
+    float m_movementSpeed;
     EntityState m_state;
 };

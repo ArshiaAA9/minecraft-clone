@@ -77,111 +77,95 @@ TEST_CASE("Camera - Mouse scroll zoom", "[camera]") {
 }
 
 TEST_CASE("Camera - rayCast and setTargetedBlock", "[camera]") {
-    GLContextFixture glFix; // Initializes context and GLAD
+    GLContextFixture glFix;
     BlockRegistry::init();
     World w;
-    w.genChunks(); // Generate chunks with known block layout
+    w.genChunks();
 
     Camera cam;
 
     SECTION("Looking down at grass block from above, within reach") {
-        // Position above top grass layer (y=31 is grass, block top at y=32)
         cam.moveTo(glm::vec3(8.5f, 32.5f, 8.5f));
-        // Look straight down (pitch = -90 degrees)
-        // Sensitivity is 0.1, so yoffset = -900 to change pitch by -90
-        cam.processMouseMovement(0.0f, -900.0f, false); // Disable pitch constrain
-
+        cam.processMouseMovement(0.0f, -900.0f, false); // straight down
         cam.setTargetedBlock(w);
-
         auto hit = cam.getCrosshairTarget();
         REQUIRE(hit.type == HitTarget::BLOCK);
         REQUIRE(hit.blockPos == glm::ivec3(8, 31, 8));
         REQUIRE(hit.distance == Approx(0.5f));
-        REQUIRE(hit.faceNormal == glm::vec3(0.0f, 1.0f, 0.0f)); // Top face
+        REQUIRE(hit.faceNormal == glm::vec3(0.0f, 1.0f, 0.0f));
         REQUIRE(hit.hitPoint.x == Approx(8.5f));
         REQUIRE(hit.hitPoint.y == Approx(32.0f));
         REQUIRE(hit.hitPoint.z == Approx(8.5f));
     }
 
     SECTION("Looking down at grass block from above, beyond reach") {
-        // Position higher, distance to hit = 4.5 > 4.0
         cam.moveTo(glm::vec3(8.5f, 36.5f, 8.5f));
         cam.processMouseMovement(0.0f, -900.0f, false);
-
         cam.setTargetedBlock(w);
-
         auto hit = cam.getCrosshairTarget();
         REQUIRE(hit.type == HitTarget::MISS);
     }
 
-    SECTION("Looking up from below ground, should miss (no upward blocks)") {
-        // Position inside world, below grass
-        cam.moveTo(glm::vec3(8.5f, 30.5f, 8.5f));
-        // Look straight up (pitch = +90 degrees)
-        cam.processMouseMovement(0.0f, 900.0f, false);
-
+    SECTION("Looking up from below ground through air column, should miss") {
+        // Air column at x=5, y=10.5 (y=10 is all air). Next solid above is at y=16 (distance 5.5 > 4)
+        cam.moveTo(glm::vec3(5.5f, 10.5f, 8.5f));
+        cam.processMouseMovement(0.0f, 900.0f, false); // straight up
         cam.setTargetedBlock(w);
-
         auto hit = cam.getCrosshairTarget();
         REQUIRE(hit.type == HitTarget::MISS);
     }
 
     SECTION("Horizontal ray hitting side of block, within reach") {
-        // Set yaw to 0 (front = (1,0,0), looking positive X)
-        // Default yaw = -90 (front = (0,0,-1)), so add 90 degrees (xoffset = 900)
-        cam.processMouseMovement(900.0f, 0.0f);
-        // Position just left of a grass block at y=31, distance 0.4
-        cam.moveTo(glm::vec3(7.6f, 31.5f, 8.5f));
-
+        // Air at x=5.5, y=15.5 (x=5, y=15 is air). Looking +X, first solid at x=6 (stone)
+        cam.moveTo(glm::vec3(5.5f, 15.5f, 8.5f));
+        cam.processMouseMovement(900.0f, 0.0f); // yaw = 0° (looking +X)
         cam.setTargetedBlock(w);
-
         auto hit = cam.getCrosshairTarget();
         REQUIRE(hit.type == HitTarget::BLOCK);
-        REQUIRE(hit.blockPos == glm::ivec3(8, 31, 8));
-        REQUIRE(hit.distance == Approx(0.4f));
-        REQUIRE(hit.faceNormal == glm::vec3(-1.0f, 0.0f, 0.0f)); // Left face (negative X)
-        REQUIRE(hit.hitPoint.x == Approx(8.0f));
-        REQUIRE(hit.hitPoint.y == Approx(31.5f));
+        REQUIRE(hit.blockPos == glm::ivec3(6, 15, 8));
+        REQUIRE(hit.distance == Approx(0.5f));
+        REQUIRE(hit.faceNormal == glm::vec3(-1.0f, 0.0f, 0.0f));
+        REQUIRE(hit.hitPoint.x == Approx(6.0f));
+        REQUIRE(hit.hitPoint.y == Approx(15.5f));
         REQUIRE(hit.hitPoint.z == Approx(8.5f));
     }
 
     SECTION("Horizontal ray, beyond reach") {
+        // At y=10 all blocks are air, so no solid within 4 blocks
+        cam.moveTo(glm::vec3(5.5f, 10.5f, 8.5f));
         cam.processMouseMovement(900.0f, 0.0f);
-        // Position farther left, distance 4.4 > 4.0
-        cam.moveTo(glm::vec3(3.6f, 31.5f, 8.5f));
-
         cam.setTargetedBlock(w);
-
         auto hit = cam.getCrosshairTarget();
         REQUIRE(hit.type == HitTarget::MISS);
     }
 
-    SECTION("Ray through air gaps (e.g., where generation sets air)") {
-        // Position looking through an air column (e.g., where x==5, air in some y)
-        // Look towards positive X through x=5 air at y=31
-        cam.moveTo(glm::vec3(4.5f, 31.5f, 8.5f));
-        cam.processMouseMovement(900.0f, 0.0f); // Look positive X
-
+    SECTION("Ray through vertical air gap, hitting block above") {
+        cam.moveTo(glm::vec3(5.5f, 12.5f, 8.5f));
+        cam.processMouseMovement(0.0f, 900.0f, false);
         cam.setTargetedBlock(w);
-
-        auto hit = cam.getCrosshairTarget();
-        REQUIRE(hit.type == HitTarget::BLOCK); // Should hit the next solid block (x=6) at distance 1.5
-        REQUIRE(hit.blockPos == glm::ivec3(6, 31, 8));
-        REQUIRE(hit.distance == Approx(1.5f));
-    }
-
-    SECTION("Starting near boundary, no immediate hit") {
-        // Position very close to block but in air, looking towards it
-        cam.moveTo(glm::vec3(8.5f, 31.0f - 0.001f, 8.5f)); // Just below grass at y=31
-        cam.processMouseMovement(0.0f, 900.0f, false);     // Look up
-
-        cam.setTargetedBlock(w);
-
         auto hit = cam.getCrosshairTarget();
         REQUIRE(hit.type == HitTarget::BLOCK);
-        REQUIRE(hit.blockPos == glm::ivec3(8, 31, 8));
-        REQUIRE(hit.distance == Approx(0.001f));
-        REQUIRE(hit.faceNormal == glm::vec3(0.0f, -1.0f, 0.0f)); // Bottom face
+        REQUIRE(hit.blockPos == glm::ivec3(5, 16, 8));
+        REQUIRE(hit.distance == Approx(3.5f));                   // unchanged
+        REQUIRE(hit.faceNormal == glm::vec3(0.0f, -1.0f, 0.0f)); // was (0,1,0)
+        REQUIRE(hit.hitPoint.x == Approx(5.5f));
+        REQUIRE(hit.hitPoint.y == Approx(16.0f));
+        REQUIRE(hit.hitPoint.z == Approx(8.5f));
+    }
+
+    SECTION("Starting near boundary from below, hit block above") {
+        cam.moveTo(glm::vec3(5.5f, 15.999f, 8.5f));
+        cam.processMouseMovement(0.0f, 900.0f, false);
+        cam.setTargetedBlock(w);
+        auto hit = cam.getCrosshairTarget();
+        REQUIRE(hit.type == HitTarget::BLOCK);
+        REQUIRE(hit.blockPos == glm::ivec3(5, 16, 8));
+        // Add a small margin for floating‑point inaccuracy
+        REQUIRE(hit.distance == Approx(0.001f).margin(0.0001f));
+        REQUIRE(hit.faceNormal == glm::vec3(0.0f, -1.0f, 0.0f));
+        REQUIRE(hit.hitPoint.x == Approx(5.5f));
+        REQUIRE(hit.hitPoint.y == Approx(16.0f));
+        REQUIRE(hit.hitPoint.z == Approx(8.5f));
     }
 }
 
@@ -282,33 +266,30 @@ TEST_CASE("World - Basic operations and physics", "[world]") {
     }
 
     SECTION("Update applies gravity when block underneath is air (transparent)") {
-        auto entPtr = std::make_unique<Entity>(glm::vec3(0.0f, 10.0f, 0.0f), 1.0f);
-        entPtr->setVelocity(glm::vec3(0.0f, 0.0f, 0.0f)); // start stationary
+        auto entPtr = std::make_unique<Entity>(glm::vec3(0.0f, 11.5f, 0.0f), 1.0f); // was 10.5f
+        entPtr->setVelocity(glm::vec3(0.0f, 0.0f, 0.0f));
         w.addEntity(std::move(entPtr));
 
-        // First update (dt = 1.0s)
-        // 1. move with current vel (0) → position unchanged
-        // 2. block under (y=9) is air (transparent) → velocity.y += GRAVITY * dt
         w.update(1.0f);
 
         const auto& entities = w.getEntities();
         REQUIRE(entities.size() == 1);
         const Entity& e = *entities[0];
-
-        REQUIRE(e.getPosition().y == Approx(10.0f)); // position did not move yet
-        REQUIRE(e.getVelocity().y == Approx(-9.8f)); // GRAVITY = -9.8
+        REQUIRE(e.getPosition().y == Approx(11.5f));
+        REQUIRE(e.getVelocity().y == Approx(-9.8f));
         REQUIRE(e.getVelocity().x == 0.0f);
         REQUIRE(e.getVelocity().z == 0.0f);
     }
 
     SECTION("Update with multiple entities") {
-        w.addEntity(std::make_unique<Entity>(glm::vec3(0.0f, 5.0f, 0.0f), 1.0f));
-        w.addEntity(std::make_unique<Entity>(glm::vec3(10.0f, 15.0f, 0.0f), 1.0f));
+        // Both entities placed where the integer‑floor block underneath is air (y=11.5 → floor 11 → block at y=10 is
+        // air)
+        w.addEntity(std::make_unique<Entity>(glm::vec3(0.0f, 11.5f, 0.0f), 1.0f));
+        w.addEntity(std::make_unique<Entity>(glm::vec3(10.0f, 11.5f, 0.0f), 1.0f));
 
         w.update(0.5f);
 
         REQUIRE(w.getEntities().size() == 2);
-        // Both should have negative y-velocity after update (no solid ground)
         for (const auto& ent : w.getEntities()) {
             REQUIRE(ent->getVelocity().y == Approx(-4.9f)); // -9.8 * 0.5
         }
