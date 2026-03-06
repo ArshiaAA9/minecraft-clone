@@ -60,7 +60,7 @@ target_include_directories(tests PRIVATE
     include
 )
 
-# Auto-discover tests with ctest (highly recommended)
+# Auto-discover tests with ctest
 include(CTest)
 include(Catch)
 catch_discover_tests(tests)

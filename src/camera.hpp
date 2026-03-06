@@ -1,8 +1,10 @@
 #pragma once
-
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "entity.hpp"
+#include "utils.hpp"
+
+class World;
 
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific
 // input methods
@@ -57,8 +59,14 @@ public:
 
     const glm::vec3& getPosition() const { return m_position; }
 
+    void setTargetedBlock(const World& world);
+
+    inline const HitTarget& getCrosshairTarget() const { return m_crosshairTarget; }
+
 private:
     void updateCameraVectors();
+
+    HitTarget rayCast(const World& world) const;
 
     // camera Attributes
     glm::vec3 m_front;
@@ -73,4 +81,7 @@ private:
     // camera options
     float m_mouseSensitivity;
     float m_zoom;
+
+    // the position of the block which the player is looking at
+    HitTarget m_crosshairTarget;
 };

@@ -112,7 +112,7 @@ public:
     inline void setVec2f(const std::string& name, float value1, float value2) const {
         GLint loc = glGetUniformLocation(m_program, name.c_str());
         if (loc == -1) {
-            std::cout << "ERROR: Uniform '" << name << "' not found!" << std::endl;
+            std::cerr << "ERROR: Uniform '" << name << "' not found!" << std::endl;
         }
         glUniform2f(loc, value1, value2);
     }
@@ -120,7 +120,7 @@ public:
     inline void setVec3f(const std::string& name, float value1, float value2, float value3) const {
         GLint loc = glGetUniformLocation(m_program, name.c_str());
         if (loc == -1) {
-            std::cout << "ERROR: Uniform '" << name << "' not found!" << std::endl;
+            std::cerr << "ERROR: Uniform '" << name << "' not found!" << std::endl;
         }
         glUniform3f(loc, value1, value2, value3);
     }

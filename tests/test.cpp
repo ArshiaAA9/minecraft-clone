@@ -4,10 +4,25 @@
 #include <glm/glm.hpp>
 
 // Your engine headers
+#include <glad/glad.h> // For gladLoadGL()
+
+#include <SFML/Window/Context.hpp>
+
 #include "block-registry.hpp"
 #include "camera.hpp"
 #include "entity.hpp"
 #include "world.hpp"
+
+struct GLContextFixture {
+    sf::Context context;
+
+    GLContextFixture() {
+        context.setActive(true);
+        if (!gladLoadGL()) {
+            FAIL("Failed to load GLAD in test fixture");
+        }
+    }
+};
 
 using namespace Catch;
 
@@ -61,7 +76,114 @@ TEST_CASE("Camera - Mouse scroll zoom", "[camera]") {
     REQUIRE_NOTHROW(cam.processMouseScroll(-10.0f));
 }
 
-// ====================== NEW TESTS BELOW ======================
+TEST_CASE("Camera - rayCast and setTargetedBlock", "[camera]") {
+    GLContextFixture glFix; // Initializes context and GLAD
+    BlockRegistry::init();
+    World w;
+    w.genChunks(); // Generate chunks with known block layout
+
+    Camera cam;
+
+    SECTION("Looking down at grass block from above, within reach") {
+        // Position above top grass layer (y=31 is grass, block top at y=32)
+        cam.moveTo(glm::vec3(8.5f, 32.5f, 8.5f));
+        // Look straight down (pitch = -90 degrees)
+        // Sensitivity is 0.1, so yoffset = -900 to change pitch by -90
+        cam.processMouseMovement(0.0f, -900.0f, false); // Disable pitch constrain
+
+        cam.setTargetedBlock(w);
+
+        auto hit = cam.getCrosshairTarget();
+        REQUIRE(hit.type == HitTarget::BLOCK);
+        REQUIRE(hit.blockPos == glm::ivec3(8, 31, 8));
+        REQUIRE(hit.distance == Approx(0.5f));
+        REQUIRE(hit.faceNormal == glm::vec3(0.0f, 1.0f, 0.0f)); // Top face
+        REQUIRE(hit.hitPoint.x == Approx(8.5f));
+        REQUIRE(hit.hitPoint.y == Approx(32.0f));
+        REQUIRE(hit.hitPoint.z == Approx(8.5f));
+    }
+
+    SECTION("Looking down at grass block from above, beyond reach") {
+        // Position higher, distance to hit = 4.5 > 4.0
+        cam.moveTo(glm::vec3(8.5f, 36.5f, 8.5f));
+        cam.processMouseMovement(0.0f, -900.0f, false);
+
+        cam.setTargetedBlock(w);
+
+        auto hit = cam.getCrosshairTarget();
+        REQUIRE(hit.type == HitTarget::MISS);
+    }
+
+    SECTION("Looking up from below ground, should miss (no upward blocks)") {
+        // Position inside world, below grass
+        cam.moveTo(glm::vec3(8.5f, 30.5f, 8.5f));
+        // Look straight up (pitch = +90 degrees)
+        cam.processMouseMovement(0.0f, 900.0f, false);
+
+        cam.setTargetedBlock(w);
+
+        auto hit = cam.getCrosshairTarget();
+        REQUIRE(hit.type == HitTarget::MISS);
+    }
+
+    SECTION("Horizontal ray hitting side of block, within reach") {
+        // Set yaw to 0 (front = (1,0,0), looking positive X)
+        // Default yaw = -90 (front = (0,0,-1)), so add 90 degrees (xoffset = 900)
+        cam.processMouseMovement(900.0f, 0.0f);
+        // Position just left of a grass block at y=31, distance 0.4
+        cam.moveTo(glm::vec3(7.6f, 31.5f, 8.5f));
+
+        cam.setTargetedBlock(w);
+
+        auto hit = cam.getCrosshairTarget();
+        REQUIRE(hit.type == HitTarget::BLOCK);
+        REQUIRE(hit.blockPos == glm::ivec3(8, 31, 8));
+        REQUIRE(hit.distance == Approx(0.4f));
+        REQUIRE(hit.faceNormal == glm::vec3(-1.0f, 0.0f, 0.0f)); // Left face (negative X)
+        REQUIRE(hit.hitPoint.x == Approx(8.0f));
+        REQUIRE(hit.hitPoint.y == Approx(31.5f));
+        REQUIRE(hit.hitPoint.z == Approx(8.5f));
+    }
+
+    SECTION("Horizontal ray, beyond reach") {
+        cam.processMouseMovement(900.0f, 0.0f);
+        // Position farther left, distance 4.4 > 4.0
+        cam.moveTo(glm::vec3(3.6f, 31.5f, 8.5f));
+
+        cam.setTargetedBlock(w);
+
+        auto hit = cam.getCrosshairTarget();
+        REQUIRE(hit.type == HitTarget::MISS);
+    }
+
+    SECTION("Ray through air gaps (e.g., where generation sets air)") {
+        // Position looking through an air column (e.g., where x==5, air in some y)
+        // Look towards positive X through x=5 air at y=31
+        cam.moveTo(glm::vec3(4.5f, 31.5f, 8.5f));
+        cam.processMouseMovement(900.0f, 0.0f); // Look positive X
+
+        cam.setTargetedBlock(w);
+
+        auto hit = cam.getCrosshairTarget();
+        REQUIRE(hit.type == HitTarget::BLOCK); // Should hit the next solid block (x=6) at distance 1.5
+        REQUIRE(hit.blockPos == glm::ivec3(6, 31, 8));
+        REQUIRE(hit.distance == Approx(1.5f));
+    }
+
+    SECTION("Starting near boundary, no immediate hit") {
+        // Position very close to block but in air, looking towards it
+        cam.moveTo(glm::vec3(8.5f, 31.0f - 0.001f, 8.5f)); // Just below grass at y=31
+        cam.processMouseMovement(0.0f, 900.0f, false);     // Look up
+
+        cam.setTargetedBlock(w);
+
+        auto hit = cam.getCrosshairTarget();
+        REQUIRE(hit.type == HitTarget::BLOCK);
+        REQUIRE(hit.blockPos == glm::ivec3(8, 31, 8));
+        REQUIRE(hit.distance == Approx(0.001f));
+        REQUIRE(hit.faceNormal == glm::vec3(0.0f, -1.0f, 0.0f)); // Bottom face
+    }
+}
 
 TEST_CASE("BlockRegistry - Initialization and properties", "[blockregistry]") {
     BlockRegistry::init(); // Must be called before any queries

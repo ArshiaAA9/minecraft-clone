@@ -34,8 +34,8 @@ public:
     // checks which chunks are visible to the camera and renders them
     void renderVisibleChunks(const Camera& camera, const Shader& shader) const;
     // return the blockID of the given block position inside world
-    int8_t getBlockAt(const glm::vec3& worldPos) const;
-    int8_t getBlockAt(int x, int y, int z) const;
+    uint8_t getBlockAt(const glm::vec3& worldPos) const;
+    uint8_t getBlockAt(int x, int y, int z) const;
     // generates a grid 2x2 of chunks and
     // adds them to the m_chunks and calls
     void genChunks();

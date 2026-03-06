@@ -5,7 +5,7 @@ struct EntityState {
     bool jumping;
     bool falling;
     bool walking;
-    bool godmode;
+    bool godmode = false;
 };
 
 class Entity {

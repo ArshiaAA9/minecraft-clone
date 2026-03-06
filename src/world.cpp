@@ -13,18 +13,18 @@ void World::update(float deltaTime) {
         if (entity->getState().godmode == true) continue;
         entity->move(entity->getVelocity() * deltaTime);
         glm::ivec3 entityPos = entity->getPosition();
-        int8_t blockUnderEntity = getBlockAt(entityPos.x, entityPos.y - 1, entityPos.z);
+        uint8_t blockUnderEntity = getBlockAt(entityPos.x, entityPos.y - 1, entityPos.z);
 
         glm::vec3 velocity = entity->getVelocity();
         // if block underneath is solid stop falling
         if (BlockRegistry::isSolid(blockUnderEntity)) {
             velocity.y = 0;
             entity->setVelocity(velocity);
-            std::cout << "camera position: " << entityPos.x << ',' << entityPos.y << ',' << entityPos.z << '\n';
+            // std::cout << "camera position: " << entityPos.x << ',' << entityPos.y << ',' << entityPos.z << '\n';
 
             int cx = static_cast<int>(std::floor(entityPos.x / Chunk::WIDTH));
             int cz = static_cast<int>(std::floor(entityPos.z / Chunk::DEPTH));
-            std::cout << "chunk pos: " << cx << ',' << cz << '\n';
+            // std::cout << "chunk pos: " << cx << ',' << cz << '\n';
 
         } else if (BlockRegistry::isTransparent(blockUnderEntity)) {
             velocity.y += GRAVITY * deltaTime;
@@ -47,9 +47,9 @@ void World::renderVisibleChunks(const Camera& camera, const Shader& shader) cons
     }
 }
 
-int8_t World::getBlockAt(const glm::vec3& worldPos) const { return getBlockAt(worldPos.x, worldPos.y, worldPos.z); }
+uint8_t World::getBlockAt(const glm::vec3& worldPos) const { return getBlockAt(worldPos.x, worldPos.y, worldPos.z); }
 
-int8_t World::getBlockAt(int x, int y, int z) const {
+uint8_t World::getBlockAt(int x, int y, int z) const {
     // Convert world position to chunk coordinates
     int cx = static_cast<int>(std::floor(static_cast<float>(x) / Chunk::WIDTH));
     int cz = static_cast<int>(std::floor(static_cast<float>(z) / Chunk::DEPTH));
@@ -71,7 +71,7 @@ int8_t World::getBlockAt(int x, int y, int z) const {
 void World::genChunks() {
     // for now generate a dirt block
     // 1 for grass block
-    int8_t type = 1;
+    uint8_t type = 1;
 
     // generate 256 chunks (16x16)
     for (int cx = 0; cx < Chunk::CHUNK_COLS; cx++) {
@@ -93,7 +93,7 @@ void World::genChunks() {
             }
             chunk->makeDirty();
             m_chunks[{cx, cz}] = std::move(chunk);
-            std::cout << "chunk pos: " << cx << ',' << cz << '\n';
+            // std::cout << "chunk pos: " << cx << ',' << cz << '\n';
         }
     }
 

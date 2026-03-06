@@ -70,8 +70,8 @@ void Chunk::generateMesh(const std::array<Chunk*, 4>& neighbours) {
     };
 
     // Texture size in UV space (hard‑coded to 0.5 because the registry uses 0.5×0.5 tiles)
-    // constexpr float TEX_SIZE = 0.5f;
     constexpr float TEX_SIZE = 0.5f;
+    // constexpr float TEX_SIZE = 1.0f;
 
     for (int x = 0; x < WIDTH; ++x) {
         for (int y = 0; y < HEIGHT; ++y) {

@@ -1,8 +1,8 @@
-
 #include <SFML/Window/Keyboard.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <iostream>
 
 #include "block-registry.hpp"
 #include "camera.hpp"
@@ -26,6 +26,7 @@ int main() {
     sf::Image img;
     if (!img.loadFromFile("../assets/textures/test-block3.png")) {
         // error
+        std::cerr << "failed to load image\n";
     }
 
     GLuint textureID;
