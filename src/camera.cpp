@@ -7,7 +7,7 @@
 #include "world.hpp"
 
 void Camera::processKeyboard(Camera_Movement direction, float deltaTime) {
-    float speed = m_movementSpeed * deltaTime;
+    float speed = m_state.godmode ? m_godmodeSpeed * deltaTime : m_movementSpeed * deltaTime;
 
     // Project forward onto the horizontal plane (XZ)
     glm::vec3 forward = glm::vec3(m_front.x, 0.0f, m_front.z);

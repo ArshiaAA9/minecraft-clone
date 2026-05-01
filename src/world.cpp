@@ -33,7 +33,7 @@ void World::update(float deltaTime) {
     }
 }
 
-// for now render all chunks
+// NOTE: for now render all chunks
 // later only render the visible chunks
 void World::renderVisibleChunks(const Camera& camera, const Shader& shader) const {
     for (const auto& [coord, chunkPtr] : m_chunks) {
@@ -84,8 +84,6 @@ void World::genChunks() {
                         if (y == 31) chunk->setBlock(x, y, z, type); // 1 for grass
                         else if (y > 15)
                             chunk->setBlock(x, y, z, 2); // 2 for dirt
-                        else if (y == 14 || y == 10 || x == 5)
-                            chunk->setBlock(x, y, z, 0); // 0 for air
                         else
                             chunk->setBlock(x, y, z, 3); // 3 for stone
                     }

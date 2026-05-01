@@ -16,6 +16,7 @@ const float PITCH = 0.0f;
 const float SPEED = 10.5f;
 const float SENSITIVITY = .1f;
 const float ZOOM = 45.0f;
+const float GODMODE_SPEED = 40.0f;
 
 class Camera : public Entity {
 public:
@@ -28,7 +29,8 @@ public:
         : Entity(position, SPEED)
         , m_front(glm::vec3(0.0f, 0.0f, -1.0f))
         , m_mouseSensitivity(SENSITIVITY)
-        , m_zoom(ZOOM) {
+        , m_zoom(ZOOM)
+        , m_godmodeSpeed(GODMODE_SPEED) {
         m_worldUp = up;
         m_yaw = yaw;
         m_pitch = pitch;
@@ -40,7 +42,8 @@ public:
         : Entity(glm::vec3(posX, posY, posZ), SPEED)
         , m_front(glm::vec3(0.0f, 0.0f, -1.0f))
         , m_mouseSensitivity(SENSITIVITY)
-        , m_zoom(ZOOM) {
+        , m_zoom(ZOOM)
+        , m_godmodeSpeed(GODMODE_SPEED) {
         m_worldUp = glm::vec3(upX, upY, upZ);
         m_yaw = yaw;
         m_pitch = pitch;
@@ -98,4 +101,5 @@ private:
 
     // the position of the block which the player is looking at
     HitTarget m_crosshairTarget;
+    float m_godmodeSpeed;
 };
